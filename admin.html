@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaGoat Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-950 text-white antialiased min-h-screen flex">
+
+    <div id="login-screen" class="fixed inset-0 z-50 bg-slate-950 flex flex-col items-center justify-center">
+        <div class="w-full max-w-md bg-slate-900 p-8 rounded-2xl shadow-2xl border border-slate-800 text-center">
+            <h1 class="text-3xl font-bold text-blue-600 mb-6"><i class="fa-solid fa-goat mr-2"></i>Admin Login</h1>
+            <form id="admin-login-form" class="space-y-4">
+                <input type="email" id="admin-email" value="anikkhan1151@gmail.com" required class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg outline-none focus:border-blue-600">
+                <input type="password" id="admin-password" placeholder="Password" required class="w-full bg-slate-950 border border-slate-700 p-3 rounded-lg outline-none focus:border-blue-600">
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition-all">Access Panel</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden w-full flex">
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col fixed h-full">
+            <div class="p-6 font-bold text-2xl text-blue-500 border-b border-slate-800 text-center italic">JavaGoat</div>
+            <nav class="flex-1 p-4 space-y-2">
+                <button onclick="showPage('movies')" class="nav-btn w-full text-left p-3 rounded-lg bg-blue-600/10 text-blue-400 border border-blue-600/20"><i class="fa-solid fa-film mr-2"></i> Movies</button>
+                <button onclick="showPage('categories')" class="nav-btn w-full text-left p-3 rounded-lg text-slate-400 hover:bg-slate-800"><i class="fa-solid fa-tags mr-2"></i> Manage Categories</button>
+            </nav>
+            <button id="btn-admin-logout" class="m-4 p-2 text-red-500 border border-red-500/20 rounded-lg hover:bg-red-500/10 font-medium">Logout</button>
+        </aside>
+
+        <main class="flex-1 ml-64 p-10">
+            <section id="page-movies">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-3xl font-bold">Video Library</h2>
+                    <div id="movie-count" class="bg-slate-900 px-4 py-1 rounded-full border border-slate-800 text-sm text-slate-400 font-mono">0 Total</div>
+                </div>
+
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 mb-10" id="form-container">
+                    <h3 id="form-title" class="text-xl font-semibold mb-6 text-blue-400 flex items-center"><i class="fa-solid fa-circle-plus mr-2"></i>Upload New Video</h3>
+                    <form id="movie-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="hidden" id="edit-id">
+                        <input type="text" id="m-title" placeholder="Movie Title" required class="bg-slate-950 border border-slate-800 p-3 rounded-lg outline-none focus:border-blue-600">
+                        
+                        <select id="m-category-select" required class="bg-slate-950 border border-slate-800 p-3 rounded-lg outline-none focus:border-blue-600">
+                            <option value="">Select Category</option>
+                        </select>
+
+                        <input type="url" id="m-poster" placeholder="Poster URL" required class="bg-slate-950 border border-slate-800 p-3 rounded-lg outline-none focus:border-blue-600">
+                        <input type="url" id="m-link" placeholder="Stream Link" required class="bg-slate-950 border border-slate-800 p-3 rounded-lg outline-none focus:border-blue-600">
+                        <div class="md:col-span-2 flex gap-2">
+                            <button type="submit" id="submit-btn" class="flex-1 bg-blue-600 hover:bg-blue-700 p-4 rounded-lg font-bold">Upload to App</button>
+                            <button type="button" id="cancel-edit" class="hidden bg-slate-800 px-6 rounded-lg font-bold">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="flex gap-4 mb-4 items-center">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"></i>
+                        <input type="text" id="search-input" placeholder="Search..." class="w-full bg-slate-900 border border-slate-800 p-4 pl-12 rounded-xl outline-none">
+                    </div>
+                    <button id="bulk-delete-btn" class="hidden bg-red-600 hover:bg-red-700 px-6 py-4 rounded-xl font-bold"><i class="fa-solid fa-trash-can mr-2"></i>Delete (<span id="select-count">0</span>)</button>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl border border-slate-800 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-800/50 text-slate-400 text-sm uppercase">
+                            <tr>
+                                <th class="p-4 w-10"><input type="checkbox" id="master-checkbox"></th>
+                                <th class="p-4">Movie</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movie-list-body" class="divide-y divide-slate-800"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="page-categories" class="hidden">
+                <h2 class="text-3xl font-bold mb-10">Manage Categories</h2>
+                <div class="bg-slate-900 p-6 rounded-xl border border-slate-800 max-w-md mb-10">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Add New Category</h3>
+                    <form id="category-form" class="flex gap-2">
+                        <input type="text" id="cat-name" placeholder="Category Name" required class="flex-1 bg-slate-950 border border-slate-800 p-3 rounded-lg outline-none focus:border-blue-600">
+                        <button class="bg-green-600 hover:bg-green-700 px-4 rounded-lg font-bold">Add</button>
+                    </form>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="category-list"></div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtTJDfwaoEDaeogvtQwb4j9MNSZYis5Wc",
+            authDomain: "movie-170e8.firebaseapp.com",
+            databaseURL: "https://movie-170e8-default-rtdb.firebaseio.com",
+            projectId: "movie-170e8",
+            storageBucket: "movie-170e8.firebasestorage.app",
+            messagingSenderId: "81185450574",
+            appId: "1:81185450574:web:fb34c049748a021b93311f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const ADMIN_EMAIL = "anikkhan1151@gmail.com";
+
+        let allMovies = [];
+        let selectedIds = new Set();
+
+        // Page Navigation
+        window.showPage = (id) => {
+            document.getElementById('page-movies').classList.toggle('hidden', id !== 'movies');
+            document.getElementById('page-categories').classList.toggle('hidden', id !== 'categories');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('bg-blue-600/10', 'text-blue-400', 'border'));
+            event.currentTarget.classList.add('bg-blue-600/10', 'text-blue-400', 'border');
+        };
+
+        // Auth Logic
+        onAuthStateChanged(auth, (user) => {
+            const isAuth = user && user.email === ADMIN_EMAIL;
+            document.getElementById('login-screen').classList.toggle('hidden', isAuth);
+            document.getElementById('admin-panel').classList.toggle('hidden', !isAuth);
+        });
+
+        document.getElementById('admin-login-form').onsubmit = async (e) => {
+            e.preventDefault();
+            try { await signInWithEmailAndPassword(auth, document.getElementById('admin-email').value.trim(), document.getElementById('admin-password').value); } 
+            catch { alert("Error logging in"); }
+        };
+
+        document.getElementById('btn-admin-logout').onclick = () => signOut(auth);
+
+        // --- Category Logic ---
+        document.getElementById('category-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('cat-name').value;
+            await push(ref(db, 'categories'), { name });
+            e.target.reset();
+        };
+
+        onValue(ref(db, 'categories'), (snap) => {
+            const list = document.getElementById('category-list');
+            const select = document.getElementById('m-category-select');
+            list.innerHTML = "";
+            select.innerHTML = '<option value="">Select Category</option>';
+            snap.forEach(c => {
+                const cat = c.val();
+                list.innerHTML += `<div class="bg-slate-900 p-4 rounded-lg border border-slate-800 flex justify-between items-center">
+                    <span>${cat.name}</span>
+                    <button onclick="delCat('${c.key}')" class="text-red-500"><i class="fa-solid fa-xmark"></i></button>
+                </div>`;
+                select.innerHTML += `<option value="${cat.name}">${cat.name}</option>`;
+            });
+        });
+
+        window.delCat = (id) => { if(confirm("Remove category?")) remove(ref(db, `categories/${id}`)); };
+
+        // --- Movie Logic ---
+        document.getElementById('movie-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const data = { 
+                title: document.getElementById('m-title').value, 
+                category: document.getElementById('m-category-select').value, 
+                poster: document.getElementById('m-poster').value, 
+                link: document.getElementById('m-link').value 
+            };
+            if (id) { await update(ref(db, `movies/${id}`), data); resetForm(); } 
+            else { await push(ref(db, 'movies'), data); e.target.reset(); }
+        };
+
+        function renderMovies(movies) {
+            const tbody = document.getElementById('movie-list-body');
+            tbody.innerHTML = "";
+            movies.forEach(m => {
+                tbody.innerHTML += `<tr>
+                    <td class="p-4 text-center"><input type="checkbox" onchange="toggleSel('${m.id}')" ${selectedIds.has(m.id) ? 'checked' : ''}></td>
+                    <td class="p-4 flex items-center gap-3"><img src="${m.data.poster}" class="w-8 h-10 rounded"><span>${m.data.title}</span></td>
+                    <td class="p-4"><span class="text-xs bg-slate-800 px-2 py-1 rounded">${m.data.category}</span></td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editItem('${m.id}')" class="text-yellow-500"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="delItem('${m.id}')" class="text-red-500"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+        }
+
+        window.toggleSel = (id) => {
+            if(selectedIds.has(id)) selectedIds.delete(id); else selectedIds.add(id);
+            document.getElementById('bulk-delete-btn').classList.toggle('hidden', selectedIds.size === 0);
+            document.getElementById('select-count').innerText = selectedIds.size;
+        };
+
+        document.getElementById('bulk-delete-btn').onclick = async () => {
+            if(confirm("Delete selected?")) {
+                for(let id of selectedIds) await remove(ref(db, `movies/${id}`));
+                selectedIds.clear();
+                toggleSel(); 
+            }
+        };
+
+        window.editItem = (id) => {
+            const m = allMovies.find(x => x.id === id);
+            document.getElementById('edit-id').value = id;
+            document.getElementById('m-title').value = m.data.title;
+            document.getElementById('m-category-select').value = m.data.category;
+            document.getElementById('m-poster').value = m.data.poster;
+            document.getElementById('m-link').value = m.data.link;
+            document.getElementById('submit-btn').innerText = "Update";
+            document.getElementById('cancel-edit').classList.remove('hidden');
+            window.scrollTo(0,0);
+        };
+
+        onValue(ref(db, 'movies'), (snap) => {
+            allMovies = [];
+            snap.forEach(c => allMovies.push({id: c.key, data: c.val()}));
+            renderMovies(allMovies);
+            document.getElementById('movie-count').innerText = `${allMovies.length} Total`;
+        });
+        
+        window.delItem = (id) => { if(confirm("Delete?")) remove(ref(db, `movies/${id}`)); };
+    </script>
+</body>
+</html>
