@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ax Viral24 - Home of Viral Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            orange: '#ffa31a',
+                            orangeHover: '#ffb74d',
+                            bgBody: '#000000',
+                            bgHeader: '#1b1b1b',
+                            bgNav: '#282828',
+                            border: '#333333',
+                            textGray: '#b1b1b1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        body { font-family: Arial, Helvetica, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .video-duration { background: rgba(0,0,0,0.8); padding: 1px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-theme-bgBody text-white antialiased pb-20 overflow-x-hidden">
+
+    <header class="bg-theme-bgHeader border-b border-black px-4 py-2 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <h1 class="text-2xl font-extrabold tracking-tighter flex items-center cursor-pointer" onclick="switchPage('home')">
+                <span class="text-white">Ax</span>
+                <span class="bg-theme-orange text-black px-1 rounded ml-0.5">Viral24</span>
+            </h1>
+        </div>
+        
+        <div class="hidden md:flex flex-1 max-w-xl mx-8 relative">
+            <input type="text" placeholder="Search 10,000+ videos..." class="w-full bg-black border border-theme-border rounded px-4 py-1.5 focus:outline-none focus:border-theme-orange">
+            <button class="absolute right-0 top-0 h-full px-4 bg-theme-orange text-black rounded-r font-bold">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <i class="fa-solid fa-user text-xl text-theme-textGray cursor-pointer hover:text-white" onclick="switchPage('profile')" title="Account"></i>
+        </div>
+    </header>
+
+    <nav class="bg-theme-bgNav border-b border-theme-border px-4 py-2 flex gap-6 text-sm font-bold uppercase overflow-x-auto no-scrollbar">
+        <span class="text-theme-orange cursor-pointer whitespace-nowrap" onclick="switchPage('home')">Home</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Videos</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap" onclick="switchPage('categories')">Categories</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Live Content</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Community</span>
+    </nav>
+
+    <main id="app-content" class="w-full max-w-6xl mx-auto relative px-2 md:px-4">
+
+        <div id="page-home" class="page-section block">
+            <div id="home-movies-container" class="py-6 space-y-10"></div>
+        </div>
+
+        <div id="page-search" class="page-section hidden py-6 min-h-screen">
+             <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
+        </div>
+
+        <div id="page-categories" class="page-section hidden py-6 min-h-screen">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-list text-theme-orange"></i> Video Categories
+            </h2>
+            <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-6 gap-2"></div>
+        </div>
+
+        <div id="page-movie-details" class="page-section hidden fixed inset-0 z-[60] bg-black overflow-y-auto">
+            <div class="max-w-5xl mx-auto min-h-screen bg-black">
+                <div class="bg-theme-bgHeader p-2 flex justify-between items-center">
+                    <button id="btn-back" class="text-theme-textGray px-4 py-1 hover:text-white"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Videos</button>
+                    <span class="bg-theme-orange text-black font-bold px-2 rounded text-xs uppercase">HD Content</span>
+                </div>
+                <div class="w-full aspect-video bg-zinc-900 relative border-b border-theme-border">
+                    <img id="detail-poster" src="" class="w-full h-full object-contain">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                         <i class="fa-solid fa-play text-7xl text-white opacity-80 cursor-pointer hover:scale-110 transition-transform"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h1 id="detail-title" class="text-xl md:text-2xl font-bold mb-2"></h1>
+                    <div class="flex items-center justify-between border-b border-theme-border pb-4 mb-4">
+                        <div class="flex items-center gap-4">
+                            <span class="text-theme-orange font-bold">98% Rating</span>
+                            <span class="text-theme-textGray text-sm">2.4M Views</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <button class="bg-theme-bgNav px-3 py-1.5 rounded text-xs border border-theme-border font-bold">SAVE</button>
+                            <button class="bg-theme-bgNav px-3 py-1.5 rounded text-xs border border-theme-border font-bold">SHARE</button>
+                        </div>
+                    </div>
+                    <p id="detail-description" class="text-theme-textGray text-sm leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-profile" class="page-section hidden py-10 flex justify-center">
+            <div id="auth-view" class="w-full max-w-sm bg-theme-bgHeader p-8 border border-theme-border">
+                <h2 class="text-2xl font-bold text-center mb-6">Login to <span class="text-white">Ax</span><span class="text-theme-orange">Viral24</span></h2>
+                <div id="auth-error" class="hidden text-red-500 text-sm mb-4 text-center"></div>
+                <form id="auth-form" class="space-y-4">
+                    <input type="email" id="auth-email" class="w-full bg-black border border-theme-border rounded p-3 focus:border-theme-orange outline-none" placeholder="Email">
+                    <input type="password" id="auth-password" class="w-full bg-black border border-theme-border rounded p-3 focus:border-theme-orange outline-none" placeholder="Password">
+                    <button type="submit" id="btn-login" class="w-full bg-theme-orange text-black font-bold py-3 rounded">LOGIN</button>
+                </form>
+            </div>
+            <div id="profile-view" class="hidden text-center">
+                <h2 id="profile-email" class="text-xl font-bold mb-4"></h2>
+                <button id="btn-logout" class="bg-red-600 px-8 py-2 font-bold rounded">LOGOUT</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 left-0 w-full z-40 bg-theme-bgHeader border-t border-theme-border grid grid-cols-4 md:hidden">
+        <button class="nav-btn py-3 text-theme-orange flex flex-col items-center" data-target="home">
+            <i class="fa-solid fa-home text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Home</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="categories">
+            <i class="fa-solid fa-list text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Categories</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="profile">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Profile</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="search">
+            <i class="fa-solid fa-search text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Search</span>
+        </button>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtTJDfwaoEDaeogvtQwb4j9MNSZYis5Wc",
+            authDomain: "movie-170e8.firebaseapp.com",
+            databaseURL: "https://movie-170e8-default-rtdb.firebaseio.com",
+            projectId: "movie-170e8",
+            storageBucket: "movie-170e8.firebasestorage.app",
+            messagingSenderId: "81185450574",
+            appId: "1:81185450574:web:fb34c049748a021b93311f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        let dbData = { movies: {}, categories: {}, banners: {} };
+
+        window.switchPage = function(targetId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${targetId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isActive = btn.dataset.target === targetId;
+                btn.classList.toggle('text-theme-orange', isActive);
+                btn.classList.toggle('text-theme-textGray', !isActive);
+            });
+            window.scrollTo(0,0);
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchPage(btn.dataset.target)));
+
+        onValue(ref(db, '/'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                dbData = { movies: data.movies || {}, categories: data.categories || {}, banners: data.banners || {} };
+                renderHome();
+                renderCategoriesPage();
+            }
+        });
+
+        function renderHome() {
+            const container = document.getElementById('home-movies-container');
+            container.innerHTML = '';
+            Object.entries(dbData.categories).forEach(([id, cat]) => {
+                const catMovies = Object.entries(dbData.movies).filter(([_, m]) => m.category === id);
+                if (catMovies.length === 0) return;
+                
+                const section = document.createElement('div');
+                section.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-theme-border mb-4">
+                        <h2 class="text-lg font-bold uppercase py-1 border-b-2 border-theme-orange">${cat.name}</h2>
+                        <span class="text-xs text-theme-textGray font-bold cursor-pointer">View More</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">${catMovies.map(([mId, m]) => `
+                        <div class="group cursor-pointer mb-2" onclick="openMovieDetails('${mId}')">
+                            <div class="relative aspect-video bg-zinc-900 rounded-sm overflow-hidden">
+                                <img src="${m.posterUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute bottom-1 right-1 video-duration text-[10px] font-bold">14:20</span>
+                                <span class="absolute top-1 right-1 bg-theme-orange text-black font-bold px-1 rounded-[2px] text-[9px]">HD</span>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-bold line-clamp-2 group-hover:text-theme-orange transition-colors">${m.title}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs text-theme-textGray font-bold">98%</span>
+                                    <span class="text-xs text-theme-textGray">•</span>
+                                    <span class="text-xs text-theme-textGray">4 days ago</span>
+                                    <i class="fa-solid fa-circle-check text-theme-orange text-[10px]" title="Verified"></i>
+                                </div>
+                            </div>
+                        </div>`).join('')}</div>`;
+                container.appendChild(section);
+            });
+        }
+
+        function renderCategoriesPage() {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = Object.entries(dbData.categories).map(([id, cat]) => `
+                <div class="bg-theme-bgNav p-3 border border-theme-border text-center hover:bg-theme-bgHeader transition-colors cursor-pointer" onclick="switchPage('home')">
+                    <i class="${cat.icon || 'fa-solid fa-film'} text-xl text-theme-orange mb-1"></i>
+                    <p class="text-[10px] font-bold uppercase">${cat.name}</p>
+                </div>`).join('');
+        }
+
+        window.openMovieDetails = function(id) {
+            const m = dbData.movies[id];
+            document.getElementById('detail-poster').src = m.posterUrl;
+            document.getElementById('detail-title').textContent = m.title;
+            document.getElementById('detail-description').textContent = m.description;
+            switchPage('movie-details');
+        }
+
+        document.getElementById('btn-back').onclick = () => switchPage('home');
+
+        onAuthStateChanged(auth, (user) => {
+            const authView = document.getElementById('auth-view');
+            const profileView = document.getElementById('profile-view');
+            if (user) {
+                authView.classList.add('hidden');
+                profileView.classList.remove('hidden');
+                document.getElementById('profile-email').textContent = user.email;
+            } else {
+                authView.classList.remove('hidden');
+                profileView.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ax Viral24 - Home of Viral Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        theme: {
+                            orange: '#ffa31a',
+                            orangeHover: '#ffb74d',
+                            bgBody: '#000000',
+                            bgHeader: '#1b1b1b',
+                            bgNav: '#282828',
+                            border: '#333333',
+                            textGray: '#b1b1b1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        body { font-family: Arial, Helvetica, sans-serif; -webkit-tap-highlight-color: transparent; }
+        .video-duration { background: rgba(0,0,0,0.8); padding: 1px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-theme-bgBody text-white antialiased pb-20 overflow-x-hidden">
+
+    <header class="bg-theme-bgHeader border-b border-black px-4 py-2 flex items-center justify-between sticky top-0 z-50">
+        <div class="flex items-center gap-4">
+            <h1 class="text-2xl font-extrabold tracking-tighter flex items-center cursor-pointer" onclick="switchPage('home')">
+                <span class="text-white">Ax</span>
+                <span class="bg-theme-orange text-black px-1 rounded ml-0.5">Viral24</span>
+            </h1>
+        </div>
+        
+        <div class="hidden md:flex flex-1 max-w-xl mx-8 relative">
+            <input type="text" placeholder="Search 10,000+ videos..." class="w-full bg-black border border-theme-border rounded px-4 py-1.5 focus:outline-none focus:border-theme-orange">
+            <button class="absolute right-0 top-0 h-full px-4 bg-theme-orange text-black rounded-r font-bold">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </div>
+
+        <div class="flex items-center gap-4">
+            <i class="fa-solid fa-user text-xl text-theme-textGray cursor-pointer hover:text-white" onclick="switchPage('profile')" title="Account"></i>
+        </div>
+    </header>
+
+    <nav class="bg-theme-bgNav border-b border-theme-border px-4 py-2 flex gap-6 text-sm font-bold uppercase overflow-x-auto no-scrollbar">
+        <span class="text-theme-orange cursor-pointer whitespace-nowrap" onclick="switchPage('home')">Home</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Videos</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap" onclick="switchPage('categories')">Categories</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Live Content</span>
+        <span class="text-white hover:text-theme-orange cursor-pointer whitespace-nowrap">Community</span>
+    </nav>
+
+    <main id="app-content" class="w-full max-w-6xl mx-auto relative px-2 md:px-4">
+
+        <div id="page-home" class="page-section block">
+            <div id="home-movies-container" class="py-6 space-y-10"></div>
+        </div>
+
+        <div id="page-search" class="page-section hidden py-6 min-h-screen">
+             <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
+        </div>
+
+        <div id="page-categories" class="page-section hidden py-6 min-h-screen">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-list text-theme-orange"></i> Video Categories
+            </h2>
+            <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-6 gap-2"></div>
+        </div>
+
+        <div id="page-movie-details" class="page-section hidden fixed inset-0 z-[60] bg-black overflow-y-auto">
+            <div class="max-w-5xl mx-auto min-h-screen bg-black">
+                <div class="bg-theme-bgHeader p-2 flex justify-between items-center">
+                    <button id="btn-back" class="text-theme-textGray px-4 py-1 hover:text-white"><i class="fa-solid fa-arrow-left mr-2"></i> Back to Videos</button>
+                    <span class="bg-theme-orange text-black font-bold px-2 rounded text-xs uppercase">HD Content</span>
+                </div>
+                <div class="w-full aspect-video bg-zinc-900 relative border-b border-theme-border">
+                    <img id="detail-poster" src="" class="w-full h-full object-contain">
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/40">
+                         <i class="fa-solid fa-play text-7xl text-white opacity-80 cursor-pointer hover:scale-110 transition-transform"></i>
+                    </div>
+                </div>
+                <div class="p-4">
+                    <h1 id="detail-title" class="text-xl md:text-2xl font-bold mb-2"></h1>
+                    <div class="flex items-center justify-between border-b border-theme-border pb-4 mb-4">
+                        <div class="flex items-center gap-4">
+                            <span class="text-theme-orange font-bold">98% Rating</span>
+                            <span class="text-theme-textGray text-sm">2.4M Views</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <button class="bg-theme-bgNav px-3 py-1.5 rounded text-xs border border-theme-border font-bold">SAVE</button>
+                            <button class="bg-theme-bgNav px-3 py-1.5 rounded text-xs border border-theme-border font-bold">SHARE</button>
+                        </div>
+                    </div>
+                    <p id="detail-description" class="text-theme-textGray text-sm leading-relaxed"></p>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-profile" class="page-section hidden py-10 flex justify-center">
+            <div id="auth-view" class="w-full max-w-sm bg-theme-bgHeader p-8 border border-theme-border">
+                <h2 class="text-2xl font-bold text-center mb-6">Login to <span class="text-white">Ax</span><span class="text-theme-orange">Viral24</span></h2>
+                <div id="auth-error" class="hidden text-red-500 text-sm mb-4 text-center"></div>
+                <form id="auth-form" class="space-y-4">
+                    <input type="email" id="auth-email" class="w-full bg-black border border-theme-border rounded p-3 focus:border-theme-orange outline-none" placeholder="Email">
+                    <input type="password" id="auth-password" class="w-full bg-black border border-theme-border rounded p-3 focus:border-theme-orange outline-none" placeholder="Password">
+                    <button type="submit" id="btn-login" class="w-full bg-theme-orange text-black font-bold py-3 rounded">LOGIN</button>
+                </form>
+            </div>
+            <div id="profile-view" class="hidden text-center">
+                <h2 id="profile-email" class="text-xl font-bold mb-4"></h2>
+                <button id="btn-logout" class="bg-red-600 px-8 py-2 font-bold rounded">LOGOUT</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="fixed bottom-0 left-0 w-full z-40 bg-theme-bgHeader border-t border-theme-border grid grid-cols-4 md:hidden">
+        <button class="nav-btn py-3 text-theme-orange flex flex-col items-center" data-target="home">
+            <i class="fa-solid fa-home text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Home</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="categories">
+            <i class="fa-solid fa-list text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Categories</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="profile">
+            <i class="fa-solid fa-user text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Profile</span>
+        </button>
+        <button class="nav-btn py-3 text-theme-textGray flex flex-col items-center" data-target="search">
+            <i class="fa-solid fa-search text-lg"></i>
+            <span class="text-[9px] uppercase font-bold mt-1">Search</span>
+        </button>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAtTJDfwaoEDaeogvtQwb4j9MNSZYis5Wc",
+            authDomain: "movie-170e8.firebaseapp.com",
+            databaseURL: "https://movie-170e8-default-rtdb.firebaseio.com",
+            projectId: "movie-170e8",
+            storageBucket: "movie-170e8.firebasestorage.app",
+            messagingSenderId: "81185450574",
+            appId: "1:81185450574:web:fb34c049748a021b93311f"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        let dbData = { movies: {}, categories: {}, banners: {} };
+
+        window.switchPage = function(targetId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`page-${targetId}`).classList.remove('hidden');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                const isActive = btn.dataset.target === targetId;
+                btn.classList.toggle('text-theme-orange', isActive);
+                btn.classList.toggle('text-theme-textGray', !isActive);
+            });
+            window.scrollTo(0,0);
+        }
+
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => switchPage(btn.dataset.target)));
+
+        onValue(ref(db, '/'), (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                dbData = { movies: data.movies || {}, categories: data.categories || {}, banners: data.banners || {} };
+                renderHome();
+                renderCategoriesPage();
+            }
+        });
+
+        function renderHome() {
+            const container = document.getElementById('home-movies-container');
+            container.innerHTML = '';
+            Object.entries(dbData.categories).forEach(([id, cat]) => {
+                const catMovies = Object.entries(dbData.movies).filter(([_, m]) => m.category === id);
+                if (catMovies.length === 0) return;
+                
+                const section = document.createElement('div');
+                section.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-theme-border mb-4">
+                        <h2 class="text-lg font-bold uppercase py-1 border-b-2 border-theme-orange">${cat.name}</h2>
+                        <span class="text-xs text-theme-textGray font-bold cursor-pointer">View More</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">${catMovies.map(([mId, m]) => `
+                        <div class="group cursor-pointer mb-2" onclick="openMovieDetails('${mId}')">
+                            <div class="relative aspect-video bg-zinc-900 rounded-sm overflow-hidden">
+                                <img src="${m.posterUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                                <span class="absolute bottom-1 right-1 video-duration text-[10px] font-bold">14:20</span>
+                                <span class="absolute top-1 right-1 bg-theme-orange text-black font-bold px-1 rounded-[2px] text-[9px]">HD</span>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-bold line-clamp-2 group-hover:text-theme-orange transition-colors">${m.title}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="text-xs text-theme-textGray font-bold">98%</span>
+                                    <span class="text-xs text-theme-textGray">•</span>
+                                    <span class="text-xs text-theme-textGray">4 days ago</span>
+                                    <i class="fa-solid fa-circle-check text-theme-orange text-[10px]" title="Verified"></i>
+                                </div>
+                            </div>
+                        </div>`).join('')}</div>`;
+                container.appendChild(section);
+            });
+        }
+
+        function renderCategoriesPage() {
+            const grid = document.getElementById('categories-grid');
+            grid.innerHTML = Object.entries(dbData.categories).map(([id, cat]) => `
+                <div class="bg-theme-bgNav p-3 border border-theme-border text-center hover:bg-theme-bgHeader transition-colors cursor-pointer" onclick="switchPage('home')">
+                    <i class="${cat.icon || 'fa-solid fa-film'} text-xl text-theme-orange mb-1"></i>
+                    <p class="text-[10px] font-bold uppercase">${cat.name}</p>
+                </div>`).join('');
+        }
+
+        window.openMovieDetails = function(id) {
+            const m = dbData.movies[id];
+            document.getElementById('detail-poster').src = m.posterUrl;
+            document.getElementById('detail-title').textContent = m.title;
+            document.getElementById('detail-description').textContent = m.description;
+            switchPage('movie-details');
+        }
+
+        document.getElementById('btn-back').onclick = () => switchPage('home');
+
+        onAuthStateChanged(auth, (user) => {
+            const authView = document.getElementById('auth-view');
+            const profileView = document.getElementById('profile-view');
+            if (user) {
+                authView.classList.add('hidden');
+                profileView.classList.remove('hidden');
+                document.getElementById('profile-email').textContent = user.email;
+            } else {
+                authView.classList.remove('hidden');
+                profileView.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
